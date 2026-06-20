@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Everyman on the Canal · King's Cross · Summer 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAD6;
+    --paper-2:#E4E0C7;
+    --ink:#15322A;
+    --ink-soft:#3d564d;
+    --coral:#EF5340;
+    --teal:#1E6B68;
+    --sun:#F2B441;
+    --sky:#5FA7B0;
+    --line:#c9c5a8;
+    --card:#F6F4E7;
+
+    /* time-of-day slot colours: warming toward dusk */
+    --slot-1200:#E6A52E; /* noon — marigold */
+    --slot-1430:#4E99A1; /* afternoon — sky */
+    --slot-1700:#1E6B68; /* early eve — teal */
+    --slot-1930:#EF5340; /* dusk — vermilion */
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"DM Sans",system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint diamond grid texture echoing the poster */
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(45deg, rgba(30,107,104,.035) 25%, transparent 25%, transparent 75%, rgba(30,107,104,.035) 75%),
+      linear-gradient(45deg, rgba(30,107,104,.035) 25%, transparent 25%, transparent 75%, rgba(30,107,104,.035) 75%);
+    background-size:46px 46px;
+    background-position:0 0, 23px 23px;
+  }
+
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 22px;}
+
+  /* ---------- header ---------- */
+  header{padding:46px 0 26px;}
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--teal);display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow .dia{width:9px;height:9px;background:var(--coral);transform:rotate(45deg);display:inline-block;}
+  h1{
+    font-family:"Bricolage Grotesque",sans-serif;
+    font-weight:800;
+    font-size:clamp(2.6rem,7vw,5.2rem);
+    line-height:.92;
+    margin:.18em 0 .12em;
+    letter-spacing:-.01em;
+  }
+  h1 .canal{color:var(--coral);font-style:italic;}
+  .sub{
+    display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;
+    font-size:1.02rem;color:var(--ink-soft);max-width:60ch;
+  }
+  .sub .dates{
+    font-family:"Space Mono",monospace;color:var(--ink);font-weight:700;
+    background:var(--sun);padding:2px 9px;border-radius:2px;
+  }
+  .free-note{
+    margin-top:14px;font-size:.9rem;color:var(--ink-soft);max-width:64ch;
+  }
+
+  /* poster-style diamond rule */
+  .rule{display:flex;gap:9px;margin:26px 0 0;}
+  .rule i{width:14px;height:14px;transform:rotate(45deg);display:block;opacity:.9;}
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb,var(--paper) 86%, transparent);
+    backdrop-filter:blur(8px);
+    border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    margin-top:22px;padding:16px 0;
+  }
+  .controls-inner{display:flex;flex-direction:column;gap:14px;}
+  .ctl-row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;}
+  .ctl-label{
+    font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-soft);margin-right:2px;min-width:62px;
+  }
+
+  .search{
+    flex:1 1 240px;min-width:200px;display:flex;align-items:center;gap:9px;
+    background:var(--card);border:2px solid var(--ink);border-radius:3px;
+    padding:9px 13px;
+  }
+  .search svg{flex:0 0 auto;}
+  .search input{
+    border:0;background:transparent;outline:none;width:100%;
+    font-family:"DM Sans",sans-serif;font-size:1rem;color:var(--ink);
+  }
+  .search input::placeholder{color:#8a8a6f;}
+
+  .chip{
+    font-family:"Space Mono",monospace;font-size:.8rem;
+    border:2px solid var(--ink);background:var(--card);color:var(--ink);
+    padding:6px 12px;border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;
+    transition:transform .08s ease, background .12s ease, color .12s ease;
+    user-select:none;
+  }
+  .chip:hover{transform:translateY(-1px);}
+  .chip .dot{width:9px;height:9px;transform:rotate(45deg);display:inline-block;background:var(--teal);}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);}
+  .chip[aria-pressed="true"] .dot{outline:1px solid var(--paper);}
+
+  /* slot chips carry their time-of-day colour when active */
+  .chip.slot[data-slot="12:00"][aria-pressed="true"]{background:var(--slot-1200);border-color:var(--slot-1200);color:#2a1d00;}
+  .chip.slot[data-slot="14:30"][aria-pressed="true"]{background:var(--slot-1430);border-color:var(--slot-1430);color:#062327;}
+  .chip.slot[data-slot="17:00"][aria-pressed="true"]{background:var(--slot-1700);border-color:var(--slot-1700);color:#eafcf8;}
+  .chip.slot[data-slot="19:30"][aria-pressed="true"]{background:var(--slot-1930);border-color:var(--slot-1930);color:#fff;}
+  .chip.slot .dot{display:none;}
+
+  .seg{display:inline-flex;border:2px solid var(--ink);border-radius:3px;overflow:hidden;}
+  .seg button{
+    font-family:"Space Mono",monospace;font-size:.8rem;
+    background:var(--card);border:0;border-right:2px solid var(--ink);
+    padding:7px 13px;cursor:pointer;color:var(--ink);
+  }
+  .seg button:last-child{border-right:0;}
+  .seg button[aria-pressed="true"]{background:var(--teal);color:var(--paper);}
+
+  .reset{
+    margin-left:auto;font-family:"Space Mono",monospace;font-size:.76rem;
+    background:transparent;border:0;color:var(--coral);cursor:pointer;
+    text-decoration:underline;text-underline-offset:3px;padding:6px 2px;
+  }
+  .reset:hover{color:var(--ink);}
+
+  /* ---------- results meta ---------- */
+  .meta{
+    display:flex;justify-content:space-between;align-items:baseline;
+    gap:14px;flex-wrap:wrap;margin:26px 0 6px;
+  }
+  .count{font-family:"Space Mono",monospace;font-size:.85rem;color:var(--ink-soft);}
+  .count b{color:var(--ink);}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:"Space Mono",monospace;font-size:.72rem;color:var(--ink-soft);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:10px;height:10px;transform:rotate(45deg);display:inline-block;}
+
+  /* ---------- day grid ---------- */
+  #grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:16px;margin:14px 0 60px;
+  }
+  .day{
+    background:var(--card);border:2px solid var(--ink);border-radius:5px;
+    overflow:hidden;display:flex;flex-direction:column;
+    box-shadow:4px 4px 0 rgba(21,50,42,.12);
+  }
+  .day-head{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    padding:13px 15px;border-bottom:2px solid var(--ink);background:var(--paper-2);
+  }
+  .day-date{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.7rem;line-height:1;}
+  .day-dow{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);}
+  .day-mon{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+
+  .screening{display:flex;gap:12px;padding:11px 15px;border-bottom:1px dashed var(--line);}
+  .screening:last-child{border-bottom:0;}
+  .stime{
+    flex:0 0 auto;font-family:"Space Mono",monospace;font-weight:700;font-size:.82rem;
+    color:#fff;padding:3px 7px;border-radius:2px;height:fit-content;min-width:52px;text-align:center;
+  }
+  .stime[data-slot="12:00"]{background:var(--slot-1200);color:#2a1d00;}
+  .stime[data-slot="14:30"]{background:var(--slot-1430);color:#062327;}
+  .stime[data-slot="17:00"]{background:var(--slot-1700);}
+  .stime[data-slot="19:30"]{background:var(--slot-1930);}
+  .stitle{font-weight:600;font-size:.98rem;line-height:1.25;flex:1 1 auto;}
+  .fav-btn{
+    flex:0 0 auto;align-self:flex-start;margin-top:1px;
+    background:transparent;border:0;cursor:pointer;padding:2px;line-height:0;
+    color:#b3af90;transition:transform .1s ease,color .12s ease;border-radius:4px;
+  }
+  .fav-btn:hover{transform:scale(1.18);color:var(--coral);}
+  .fav-btn svg{display:block;}
+  .fav-btn[aria-pressed="true"]{color:var(--coral);}
+  .fav-btn[aria-pressed="true"] svg{fill:var(--coral);}
+  .stitle .tag{
+    display:inline-block;font-family:"Space Mono",monospace;font-size:.6rem;
+    letter-spacing:.1em;text-transform:uppercase;vertical-align:middle;
+    border:1px solid var(--ink-soft);color:var(--ink-soft);
+    padding:1px 5px;border-radius:2px;margin-left:6px;
+  }
+  .snote{display:block;font-size:.76rem;color:var(--coral);font-style:italic;margin-top:3px;}
+
+  /* highlighted search match */
+  mark{background:var(--sun);color:var(--ink);padding:0 1px;border-radius:1px;}
+
+  /* favourites toggle */
+  .fav-toggle{
+    font-family:"Space Mono",monospace;font-size:.8rem;
+    border:2px solid var(--coral);background:var(--card);color:var(--coral);
+    padding:6px 12px;border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;
+    transition:transform .08s ease,background .12s ease,color .12s ease;
+  }
+  .fav-toggle:hover{transform:translateY(-1px);}
+  .fav-toggle svg{fill:none;stroke:var(--coral);stroke-width:2;}
+  .fav-toggle[aria-pressed="true"]{background:var(--coral);color:#fff;}
+  .fav-toggle[aria-pressed="true"] svg{fill:#fff;stroke:#fff;}
+  .fav-toggle .fc{font-weight:700;}
+
+  .empty{
+    grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-soft);
+  }
+  .empty .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.6rem;color:var(--ink);margin-bottom:6px;}
+
+  footer{
+    border-top:2px solid var(--ink);padding:22px 0 50px;
+    font-size:.84rem;color:var(--ink-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  footer a{color:var(--teal);}
+
+  @media (max-width:560px){
+    header{padding:34px 0 18px;}
+    .ctl-label{min-width:auto;width:100%;}
+    .reset{margin-left:0;}
+    #grid{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;scroll-behavior:auto!important;}
+  }
+  :focus-visible{outline:3px solid var(--coral);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span class="dia"></span> Everyman · Granary Square steps · free admission</div>
+    <h1>On the <span class="canal">Canal</span><br>at King's Cross</h1>
+    <div class="sub">
+      <span class="dates">29 JUN — 16 AUG 2026</span>
+      <span>An open-air summer cinema on the canalside steps.</span>
+    </div>
+    <p class="free-note">All screenings are free and seating is first come, first served — capacities are limited. The Granary Square steps close at 22:00 each night. Films are subject to change.</p>
+    <div class="rule">
+      <i style="background:var(--coral)"></i><i style="background:var(--teal)"></i>
+      <i style="background:var(--sun)"></i><i style="background:var(--sky)"></i>
+      <i style="background:var(--coral)"></i><i style="background:var(--teal)"></i>
+      <i style="background:var(--sun)"></i><i style="background:var(--sky)"></i>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="wrap" style="padding:0;">
+      <div class="controls-inner">
+        <div class="ctl-row">
+          <label class="search" for="q">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#15322A" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="q" type="search" placeholder="Search a film… (try “Top Gun”, “1996”, “Disney”)" autocomplete="off">
+          </label>
+          <div class="seg" role="group" aria-label="Type of screening">
+            <button data-type="all" aria-pressed="true">All</button>
+            <button data-type="film" aria-pressed="false">Films</button>
+            <button data-type="event" aria-pressed="false">Events</button>
+          </div>
+          <button class="fav-toggle" id="favToggle" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 17.3l-6.2 3.7 1.6-7L2 9.2l7.1-.6L12 2l2.9 6.6 7.1.6-5.4 4.8 1.6 7z"/></svg>
+            <span>Saved</span><span class="fc" id="favCount">(0)</span>
+          </button>
+          <button class="reset" id="reset">Clear filters</button>
+        </div>
+
+        <div class="ctl-row">
+          <span class="ctl-label">Time</span>
+          <button class="chip slot" data-slot="12:00" aria-pressed="true">12:00 · Noon</button>
+          <button class="chip slot" data-slot="14:30" aria-pressed="true">14:30 · Afternoon</button>
+          <button class="chip slot" data-slot="17:00" aria-pressed="true">17:00 · Early eve</button>
+          <button class="chip slot" data-slot="19:30" aria-pressed="true">19:30 · Sunset</button>
+        </div>
+
+        <div class="ctl-row">
+          <span class="ctl-label">Month</span>
+          <button class="chip mon" data-mon="2026-06" aria-pressed="true"><span class="dot"></span>June</button>
+          <button class="chip mon" data-mon="2026-07" aria-pressed="true"><span class="dot"></span>July</button>
+          <button class="chip mon" data-mon="2026-08" aria-pressed="true"><span class="dot"></span>August</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="count" id="count"></div>
+    <div class="legend">
+      <span><i style="background:var(--slot-1200)"></i>Noon</span>
+      <span><i style="background:var(--slot-1430)"></i>Afternoon</span>
+      <span><i style="background:var(--slot-1700)"></i>Early eve</span>
+      <span><i style="background:var(--slot-1930)"></i>Sunset</span>
+    </div>
+  </div>
+
+  <main id="grid" aria-live="polite"></main>
+
+  <footer>
+    <span>Programme: Everyman on the Canal at King's Cross — everymancinema.com</span>
+    <span>@KingsCrossN1C · @EverymanCinema</span>
+  </footer>
+
+</div>
+
+<script>
+const DATA = [
+  {d:"2026-06-29",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-06-29",t:"17:00",n:"Jaws",ty:"film"},
+  {d:"2026-06-29",t:"19:30",n:"Top Gun + DJ Yoda AV Show",ty:"film",note:"Opening Night Celebration"},
+  {d:"2026-06-30",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-06-30",t:"17:00",n:"10 Things I Hate About You",ty:"film"},
+  {d:"2026-06-30",t:"19:30",n:"Springsteen: Deliver Me From Nowhere",ty:"film"},
+  {d:"2026-07-01",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-01",t:"17:00",n:"Closed for a private event (17:00–20:00)",ty:"event"},
+  {d:"2026-07-01",t:"19:30",n:"Bridget Jones's Diary",ty:"film",note:"Starts at 20:20 due to private event"},
+  {d:"2026-07-02",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-02",t:"17:00",n:"Moonrise Kingdom",ty:"film"},
+  {d:"2026-07-02",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-07-03",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-03",t:"17:00",n:"Frame Presents: Freakier Friday",ty:"film"},
+  {d:"2026-07-03",t:"19:30",n:"Labyrinth",ty:"film"},
+  {d:"2026-07-04",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-04",t:"17:00",n:"Mean Girls (2004)",ty:"film"},
+  {d:"2026-07-04",t:"19:30",n:"Queer Britain: Kinky Boots",ty:"film"},
+  {d:"2026-07-05",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-05",t:"17:00",n:"Conclave",ty:"film"},
+  {d:"2026-07-05",t:"19:30",n:"Roman Holiday",ty:"film"},
+  {d:"2026-07-06",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-06",t:"17:00",n:"10 Things I Hate About You",ty:"film"},
+  {d:"2026-07-06",t:"19:30",n:"Song Sung Blue",ty:"film"},
+  {d:"2026-07-07",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-07",t:"17:00",n:"Paddington",ty:"film"},
+  {d:"2026-07-07",t:"19:30",n:"Forrest Gump",ty:"film"},
+  {d:"2026-07-08",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-08",t:"17:00",n:"American Graffiti",ty:"film"},
+  {d:"2026-07-08",t:"19:30",n:"Dirty Dancing",ty:"film"},
+  {d:"2026-07-09",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-09",t:"17:00",n:"The Parent Trap (1998)",ty:"film"},
+  {d:"2026-07-09",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-07-10",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-10",t:"17:00",n:"Ratatouille",ty:"film"},
+  {d:"2026-07-10",t:"19:30",n:"F1: The Movie",ty:"film"},
+  {d:"2026-07-11",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-11",t:"17:00",n:"Wimbledon Women's Singles Final",ty:"event"},
+  {d:"2026-07-11",t:"19:30",n:"Alice Wilson Presents: Mary Poppins (1964)",ty:"film"},
+  {d:"2026-07-12",t:"12:00",n:"Wimbledon (live tennis)",ty:"event"},
+  {d:"2026-07-12",t:"17:00",n:"Wimbledon Men's Singles Final",ty:"event"},
+  {d:"2026-07-12",t:"19:30",n:"Wimbledon Men's Singles Final",ty:"event"},
+  {d:"2026-07-13",t:"12:00",n:"Lilo & Stitch (2002)",ty:"film"},
+  {d:"2026-07-13",t:"14:30",n:"Aladdin (1992)",ty:"film"},
+  {d:"2026-07-13",t:"17:00",n:"Asteroid City",ty:"film"},
+  {d:"2026-07-13",t:"19:30",n:"CODA",ty:"film"},
+  {d:"2026-07-14",t:"12:00",n:"DogMan",ty:"film"},
+  {d:"2026-07-14",t:"14:30",n:"Madagascar",ty:"film"},
+  {d:"2026-07-14",t:"17:00",n:"The Seven Year Itch",ty:"film"},
+  {d:"2026-07-14",t:"19:30",n:"Bounce Cinema + DJ Set",ty:"film"},
+  {d:"2026-07-15",t:"12:00",n:"Migration",ty:"film"},
+  {d:"2026-07-15",t:"14:30",n:"Cheaper by the Dozen",ty:"film"},
+  {d:"2026-07-15",t:"17:00",n:"School of Rock",ty:"film"},
+  {d:"2026-07-15",t:"19:30",n:"Elvis",ty:"film"},
+  {d:"2026-07-16",t:"12:00",n:"Babe",ty:"film"},
+  {d:"2026-07-16",t:"14:30",n:"Coco",ty:"film"},
+  {d:"2026-07-16",t:"17:00",n:"Cinema Paradiso",ty:"film"},
+  {d:"2026-07-16",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-07-17",t:"12:00",n:"Up Yours! Collective",ty:"event"},
+  {d:"2026-07-17",t:"14:30",n:"Up Yours! Collective",ty:"event"},
+  {d:"2026-07-17",t:"17:00",n:"Up Yours! Collective",ty:"event"},
+  {d:"2026-07-17",t:"19:30",n:"Up Yours! Collective",ty:"event"},
+  {d:"2026-07-18",t:"12:00",n:"A Minecraft Movie",ty:"film"},
+  {d:"2026-07-18",t:"14:30",n:"Beauty and the Beast (1991)",ty:"film"},
+  {d:"2026-07-18",t:"17:00",n:"Romeo + Juliet",ty:"film"},
+  {d:"2026-07-18",t:"19:30",n:"Jurassic Park",ty:"film"},
+  {d:"2026-07-19",t:"12:00",n:"Zootropolis",ty:"film"},
+  {d:"2026-07-19",t:"14:30",n:"Mary Poppins (1964)",ty:"film"},
+  {d:"2026-07-19",t:"17:00",n:"Cool Runnings",ty:"film"},
+  {d:"2026-07-19",t:"19:30",n:"Top Gun: Maverick",ty:"film"},
+  {d:"2026-07-20",t:"12:00",n:"Dr Dolittle (1998)",ty:"film"},
+  {d:"2026-07-20",t:"14:30",n:"The Iron Giant",ty:"film"},
+  {d:"2026-07-20",t:"17:00",n:"Little Women (2019)",ty:"film"},
+  {d:"2026-07-20",t:"19:30",n:"Who Framed Roger Rabbit",ty:"film"},
+  {d:"2026-07-21",t:"12:00",n:"Peter Pan (1953)",ty:"film"},
+  {d:"2026-07-21",t:"14:30",n:"A Cinderella Story",ty:"film"},
+  {d:"2026-07-21",t:"17:00",n:"The Greatest Showman",ty:"film"},
+  {d:"2026-07-21",t:"19:30",n:"Some Like It Hot",ty:"film"},
+  {d:"2026-07-22",t:"12:00",n:"Encanto",ty:"film"},
+  {d:"2026-07-22",t:"14:30",n:"The Parent Trap (1998)",ty:"film"},
+  {d:"2026-07-22",t:"17:00",n:"Bend It Like Beckham",ty:"film"},
+  {d:"2026-07-22",t:"19:30",n:"Back to the Future",ty:"film"},
+  {d:"2026-07-23",t:"12:00",n:"Monsters, Inc.",ty:"film"},
+  {d:"2026-07-23",t:"14:30",n:"Babe",ty:"film"},
+  {d:"2026-07-23",t:"17:00",n:"Rental Family",ty:"film"},
+  {d:"2026-07-23",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-07-24",t:"12:00",n:"Pinkfong Sing and Dance Compilation",ty:"film"},
+  {d:"2026-07-24",t:"14:30",n:"The Incredibles",ty:"film"},
+  {d:"2026-07-24",t:"17:00",n:"E.T.",ty:"film"},
+  {d:"2026-07-24",t:"19:30",n:"Frame Presents: Whitney Houston: I Wanna Dance With Somebody",ty:"film"},
+  {d:"2026-07-25",t:"12:00",n:"Lady and the Tramp (1955)",ty:"film"},
+  {d:"2026-07-25",t:"14:30",n:"Madagascar",ty:"film"},
+  {d:"2026-07-25",t:"17:00",n:"Ghostbusters (1984)",ty:"film"},
+  {d:"2026-07-25",t:"19:30",n:"La La Land",ty:"film"},
+  {d:"2026-07-26",t:"12:00",n:"Hoppers",ty:"film"},
+  {d:"2026-07-26",t:"14:30",n:"The Wizard of Oz",ty:"film"},
+  {d:"2026-07-26",t:"17:00",n:"Wonka",ty:"film"},
+  {d:"2026-07-26",t:"19:30",n:"Catch Me If You Can",ty:"film"},
+  {d:"2026-07-27",t:"12:00",n:"Gabby's Dollhouse",ty:"film"},
+  {d:"2026-07-27",t:"14:30",n:"Encanto",ty:"film"},
+  {d:"2026-07-27",t:"17:00",n:"Big",ty:"film"},
+  {d:"2026-07-27",t:"19:30",n:"Crazy Rich Asians",ty:"film"},
+  {d:"2026-07-28",t:"12:00",n:"Springer Nature Science on Screen: The Wild Robot",ty:"film"},
+  {d:"2026-07-28",t:"14:30",n:"Springer Nature Science on Screen: Finding Nemo",ty:"film"},
+  {d:"2026-07-28",t:"17:00",n:"Springer Nature Science on Screen: The Theory of Everything",ty:"film"},
+  {d:"2026-07-28",t:"19:30",n:"Springer Nature Science on Screen: Dune: Part One",ty:"film"},
+  {d:"2026-07-29",t:"12:00",n:"Flow",ty:"film"},
+  {d:"2026-07-29",t:"14:30",n:"Twitches",ty:"film"},
+  {d:"2026-07-29",t:"17:00",n:"Saatchi & Saatchi: 2026 New Creators' Showcase",ty:"event"},
+  {d:"2026-07-29",t:"19:30",n:"Napoleon Dynamite",ty:"film"},
+  {d:"2026-07-30",t:"12:00",n:"Paddington",ty:"film"},
+  {d:"2026-07-30",t:"14:30",n:"The Lizzie McGuire Movie",ty:"film"},
+  {d:"2026-07-30",t:"17:00",n:"Cheaper by the Dozen",ty:"film"},
+  {d:"2026-07-30",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-07-31",t:"12:00",n:"Tangled",ty:"film"},
+  {d:"2026-07-31",t:"14:30",n:"Mufasa: The Lion King",ty:"film"},
+  {d:"2026-07-31",t:"17:00",n:"High School Musical",ty:"film"},
+  {d:"2026-07-31",t:"19:30",n:"Hannah Montana: The Movie",ty:"film"},
+  {d:"2026-08-01",t:"12:00",n:"The Jungle Book (1967)",ty:"film"},
+  {d:"2026-08-01",t:"14:30",n:"Beauty and the Beast (1991)",ty:"film"},
+  {d:"2026-08-01",t:"17:00",n:"Grease",ty:"film"},
+  {d:"2026-08-01",t:"19:30",n:"Clueless",ty:"film"},
+  {d:"2026-08-02",t:"12:00",n:"Lady and the Tramp (1955)",ty:"film"},
+  {d:"2026-08-02",t:"14:30",n:"Back to the Future",ty:"film"},
+  {d:"2026-08-02",t:"17:00",n:"The Ballad of Wallis Island",ty:"film"},
+  {d:"2026-08-02",t:"19:30",n:"Barbie",ty:"film"},
+  {d:"2026-08-03",t:"12:00",n:"Ratatouille",ty:"film"},
+  {d:"2026-08-03",t:"14:30",n:"Aladdin (1992)",ty:"film"},
+  {d:"2026-08-03",t:"17:00",n:"Twilight",ty:"film"},
+  {d:"2026-08-03",t:"19:30",n:"Walk the Line",ty:"film"},
+  {d:"2026-08-04",t:"12:00",n:"Ocean: David Attenborough",ty:"film"},
+  {d:"2026-08-04",t:"14:30",n:"The Goonies",ty:"film"},
+  {d:"2026-08-04",t:"17:00",n:"Casablanca",ty:"film"},
+  {d:"2026-08-04",t:"19:30",n:"The Martian",ty:"film"},
+  {d:"2026-08-05",t:"12:00",n:"Pocahontas (1995)",ty:"film"},
+  {d:"2026-08-05",t:"14:30",n:"Megamind",ty:"film"},
+  {d:"2026-08-05",t:"17:00",n:"Supershorts by Earthrise",ty:"event"},
+  {d:"2026-08-05",t:"19:30",n:"Some Like It Hot",ty:"film"},
+  {d:"2026-08-06",t:"12:00",n:"The Wizard of Oz",ty:"film"},
+  {d:"2026-08-06",t:"14:30",n:"Zootropolis",ty:"film"},
+  {d:"2026-08-06",t:"17:00",n:"Top Gun: Maverick",ty:"film"},
+  {d:"2026-08-06",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-08-07",t:"12:00",n:"Bebefinn Sing-Along Compilation",ty:"film"},
+  {d:"2026-08-07",t:"14:30",n:"Goat",ty:"film"},
+  {d:"2026-08-07",t:"17:00",n:"Legally Blonde",ty:"film"},
+  {d:"2026-08-07",t:"19:30",n:"Frame Presents: Wicked",ty:"film"},
+  {d:"2026-08-08",t:"12:00",n:"E.T.",ty:"film"},
+  {d:"2026-08-08",t:"14:30",n:"Hoppers",ty:"film"},
+  {d:"2026-08-08",t:"17:00",n:"Ferris Bueller's Day Off",ty:"film"},
+  {d:"2026-08-08",t:"19:30",n:"The Hunger Games (2012)",ty:"film"},
+  {d:"2026-08-09",t:"12:00",n:"The Bad Guys 2",ty:"film"},
+  {d:"2026-08-09",t:"14:30",n:"The Iron Giant",ty:"film"},
+  {d:"2026-08-09",t:"17:00",n:"Honey",ty:"film"},
+  {d:"2026-08-09",t:"19:30",n:"F1: The Movie",ty:"film"},
+  {d:"2026-08-10",t:"12:00",n:"Dumbo (1941)",ty:"film"},
+  {d:"2026-08-10",t:"14:30",n:"Lilo & Stitch (2025)",ty:"film"},
+  {d:"2026-08-10",t:"17:00",n:"Frame Presents: Step Up",ty:"film"},
+  {d:"2026-08-10",t:"19:30",n:"A Knight's Tale",ty:"film"},
+  {d:"2026-08-11",t:"12:00",n:"Flow",ty:"film"},
+  {d:"2026-08-11",t:"14:30",n:"Matilda (1996)",ty:"film"},
+  {d:"2026-08-11",t:"17:00",n:"The Greatest Showman",ty:"film"},
+  {d:"2026-08-11",t:"19:30",n:"Dirty Dancing",ty:"film"},
+  {d:"2026-08-12",t:"12:00",n:"Coco",ty:"film"},
+  {d:"2026-08-12",t:"14:30",n:"Monsters, Inc.",ty:"film"},
+  {d:"2026-08-12",t:"17:00",n:"School of Rock",ty:"film"},
+  {d:"2026-08-12",t:"19:30",n:"Ocean: David Attenborough",ty:"film"},
+  {d:"2026-08-13",t:"12:00",n:"How to Train Your Dragon (2009)",ty:"film"},
+  {d:"2026-08-13",t:"14:30",n:"The Wild Robot",ty:"film"},
+  {d:"2026-08-13",t:"17:00",n:"Clueless",ty:"film"},
+  {d:"2026-08-13",t:"19:30",n:"King's Cross Film Choice",ty:"film",note:"TBC"},
+  {d:"2026-08-14",t:"12:00",n:"Finding Nemo",ty:"film"},
+  {d:"2026-08-14",t:"14:30",n:"Who Framed Roger Rabbit",ty:"film"},
+  {d:"2026-08-14",t:"17:00",n:"The Goonies",ty:"film"},
+  {d:"2026-08-14",t:"19:30",n:"The Devil Wears Prada",ty:"film"},
+  {d:"2026-08-15",t:"12:00",n:"Encanto",ty:"film"},
+  {d:"2026-08-15",t:"14:30",n:"Paddington in Peru",ty:"film"},
+  {d:"2026-08-15",t:"17:00",n:"Matilda (1996)",ty:"film"},
+  {d:"2026-08-15",t:"19:30",n:"Wicked: For Good",ty:"film"},
+  {d:"2026-08-16",t:"12:00",n:"Wonka",ty:"film"},
+  {d:"2026-08-16",t:"14:30",n:"A Minecraft Movie",ty:"film"},
+  {d:"2026-08-16",t:"17:00",n:"Singin' in the Rain",ty:"film"},
+  {d:"2026-08-16",t:"19:30",n:"Bridget Jones's Diary",ty:"film"}
+];
+
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// ---- state ----
+const state = {
+  q:"",
+  type:"all",
+  slots:new Set(["12:00","14:30","17:00","19:30"]),
+  months:new Set(["2026-06","2026-07","2026-08"]),
+  favsOnly:false,
+};
+
+// ---- favourites (persisted in the browser) ----
+const STORE_KEY = "everyman-canal-2026-favs";
+const favId = s => `${s.d}|${s.t}|${s.n}`;
+let favs = new Set();
+try{
+  const raw = localStorage.getItem(STORE_KEY);
+  if(raw) favs = new Set(JSON.parse(raw));
+}catch(e){ /* storage unavailable — favourites still work for this session */ }
+
+function saveFavs(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify([...favs])); }
+  catch(e){ /* ignore quota/availability errors */ }
+}
+function toggleFav(id){
+  if(favs.has(id)) favs.delete(id); else favs.add(id);
+  saveFavs();
+}
+function updateFavUI(){
+  document.getElementById("favCount").textContent = `(${favs.size})`;
+  const ft = document.getElementById("favToggle");
+  ft.setAttribute("aria-pressed", String(state.favsOnly));
+}
+
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function highlight(name){
+  const q = state.q.trim();
+  const safe = esc(name);
+  if(!q) return safe;
+  const re = new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");
+  return safe.replace(re,"<mark>$1</mark>");
+}
+
+function matches(s){
+  if(state.favsOnly && !favs.has(favId(s))) return false;
+  if(!state.slots.has(s.t)) return false;
+  if(!state.months.has(s.d.slice(0,7))) return false;
+  if(state.type!=="all" && s.ty!==state.type) return false;
+  if(state.q.trim() && !s.n.toLowerCase().includes(state.q.trim().toLowerCase())) return false;
+  return true;
+}
+
+function render(){
+  const shown = DATA.filter(matches);
+  // group by date preserving chronological order
+  const byDate = new Map();
+  for(const s of shown){
+    if(!byDate.has(s.d)) byDate.set(s.d,[]);
+    byDate.get(s.d).push(s);
+  }
+
+  grid.innerHTML = "";
+  if(shown.length===0){
+    const msg = state.favsOnly
+      ? `<div class="empty"><div class="big">No saved screenings yet.</div>Tap the star on any film to save it here, then come back to plan your nights.</div>`
+      : `<div class="empty"><div class="big">Nothing matches that yet.</div>Try clearing a filter or searching a different title.</div>`;
+    grid.innerHTML = msg;
+  } else {
+    for(const [date,items] of byDate){
+      const dt = new Date(date+"T00:00:00Z");
+      const card = document.createElement("article");
+      card.className = "day";
+      const rows = items.map(s=>{
+        const tag = s.ty==="event" ? `<span class="tag">Event</span>` : "";
+        const note = s.note ? `<span class="snote">${esc(s.note)}</span>` : "";
+        const id = favId(s);
+        const on = favs.has(id);
+        const star = `<button class="fav-btn" data-id="${esc(id)}" aria-pressed="${on}" title="${on?'Saved — tap to remove':'Save to favourites'}" aria-label="${on?'Remove from favourites':'Save to favourites'}: ${esc(s.n)}">
+            <svg width="19" height="19" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M12 17.3l-6.2 3.7 1.6-7L2 9.2l7.1-.6L12 2l2.9 6.6 7.1.6-5.4 4.8 1.6 7z"/></svg>
+          </button>`;
+        return `<div class="screening">
+          <span class="stime" data-slot="${s.t}">${s.t}</span>
+          <span class="stitle">${highlight(s.n)}${tag}${note}</span>
+          ${star}
+        </div>`;
+      }).join("");
+      card.innerHTML = `
+        <div class="day-head">
+          <div>
+            <div class="day-dow">${DOW[dt.getUTCDay()]}</div>
+            <div class="day-date">${dt.getUTCDate()}</div>
+          </div>
+          <div class="day-mon">${MON[dt.getUTCMonth()]}</div>
+        </div>
+        ${rows}`;
+      grid.appendChild(card);
+    }
+  }
+
+  const days = byDate.size;
+  countEl.innerHTML = `<b>${shown.length}</b> screening${shown.length!==1?"s":""} across <b>${days}</b> day${days!==1?"s":""}`;
+  updateFavUI();
+}
+
+// ---- wire up controls ----
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value;render();});
+
+document.querySelectorAll(".seg button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    state.type=b.dataset.type;
+    document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    render();
+  });
+});
+
+function bindToggle(sel,set,key){
+  document.querySelectorAll(sel).forEach(b=>{
+    b.addEventListener("click",()=>{
+      const v=b.dataset[key];
+      const on=b.getAttribute("aria-pressed")==="true";
+      if(on){set.delete(v); b.setAttribute("aria-pressed","false");}
+      else{set.add(v); b.setAttribute("aria-pressed","true");}
+      render();
+    });
+  });
+}
+bindToggle(".chip.slot",state.slots,"slot");
+bindToggle(".chip.mon",state.months,"mon");
+
+// star clicks (delegated — grid re-renders on every change)
+grid.addEventListener("click",e=>{
+  const btn = e.target.closest(".fav-btn");
+  if(!btn) return;
+  toggleFav(btn.dataset.id);
+  render();
+});
+
+// favourites view toggle
+document.getElementById("favToggle").addEventListener("click",()=>{
+  state.favsOnly = !state.favsOnly;
+  render();
+});
+
+document.getElementById("reset").addEventListener("click",()=>{
+  state.q=""; document.getElementById("q").value="";
+  state.type="all";
+  state.favsOnly=false;
+  state.slots=new Set(["12:00","14:30","17:00","19:30"]);
+  state.months=new Set(["2026-06","2026-07","2026-08"]);
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.type==="all"));
+  document.querySelectorAll(".chip.slot,.chip.mon").forEach(x=>x.setAttribute("aria-pressed","true"));
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
